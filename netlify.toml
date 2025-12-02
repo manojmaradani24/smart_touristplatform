@@ -1,6 +1,6 @@
 [build]
   base = "SmartMerchant-saas-main"
-  command = "npm install && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
 
 [[redirects]]
@@ -17,10 +17,10 @@
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 [context.production]
-  command = "npm install && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
   environment = { NODE_ENV = "production" }
 
 [context.deploy-preview]
-  command = "npm install && npm run build"
+  command = "npm ci && npm run build"
   publish = "dist"
