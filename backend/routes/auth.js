@@ -7,7 +7,6 @@ import { sendOTPEmail, sendPasswordResetConfirmation } from '../utils/emailServi
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
-// Predefined users data
 const predefinedUsers = [
   { email: 'manoj@gmail.com', password: 'manoj123', name: 'Manoj Kumar', userType: 'predefined' },
   { email: 'geetha@gmail.com', password: 'geetha123', name: 'Geetha Sharma', userType: 'predefined' },
@@ -16,7 +15,6 @@ const predefinedUsers = [
   { email: 'nandini@gmail.com', password: 'nandini123', name: 'Nandini Reddy', userType: 'predefined' }
 ];
 
-// Initialize predefined users
 const initializePredefinedUsers = async () => {
   try {
     for (const userData of predefinedUsers) {
@@ -32,10 +30,8 @@ const initializePredefinedUsers = async () => {
   }
 };
 
-// Call this function when server starts
 initializePredefinedUsers();
 
-// Forgot Password - Send OTP
 router.post('/forgot-password', [
   body('email').isEmail().withMessage('Valid email is required')
 ], async (req, res) => {
@@ -51,7 +47,6 @@ router.post('/forgot-password', [
 
     const { email } = req.body;
 
-    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -60,11 +55,9 @@ router.post('/forgot-password', [
       });
     }
 
-    // Generate OTP
     const otp = user.generateOTP();
     await user.save();
 
-    // Send OTP email
     await sendOTPEmail(email, otp, user.name);
 
     res.json({
@@ -84,7 +77,6 @@ router.post('/forgot-password', [
   }
 });
 
-// Verify OTP
 router.post('/verify-otp', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits')
@@ -101,7 +93,6 @@ router.post('/verify-otp', [
 
     const { email, otp } = req.body;
 
-    // Find user and check OTP
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -110,7 +101,6 @@ router.post('/verify-otp', [
       });
     }
 
-    // Check if OTP is valid and not expired
     if (!user.isOTPValid() || user.otp !== otp) {
       return res.status(400).json({
         success: false,
@@ -136,7 +126,6 @@ router.post('/verify-otp', [
   }
 });
 
-// Reset Password
 router.post('/reset-password', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('otp').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
@@ -154,7 +143,6 @@ router.post('/reset-password', [
 
     const { email, otp, newPassword } = req.body;
 
-    // Find user and verify OTP
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -163,7 +151,6 @@ router.post('/reset-password', [
       });
     }
 
-    // Check if OTP is valid
     if (!user.isOTPValid() || user.otp !== otp) {
       return res.status(400).json({
         success: false,
@@ -171,12 +158,10 @@ router.post('/reset-password', [
       });
     }
 
-    // Update password and clear OTP
     user.password = newPassword;
     user.clearOTP();
     await user.save();
 
-    // Send confirmation email
     await sendPasswordResetConfirmation(email, user.name);
 
     res.json({
@@ -193,7 +178,6 @@ router.post('/reset-password', [
   }
 });
 
-// Resend OTP
 router.post('/resend-otp', [
   body('email').isEmail().withMessage('Valid email is required')
 ], async (req, res) => {
@@ -209,7 +193,6 @@ router.post('/resend-otp', [
 
     const { email } = req.body;
 
-    // Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -218,11 +201,9 @@ router.post('/resend-otp', [
       });
     }
 
-    // Generate new OTP
     const otp = user.generateOTP();
     await user.save();
 
-    // Send OTP email
     await sendOTPEmail(email, otp, user.name);
 
     res.json({
@@ -242,7 +223,6 @@ router.post('/resend-otp', [
   }
 });
 
-// Register endpoint
 router.post('/register', [
   body('name').notEmpty().withMessage('Name is required'),
   body('email').isEmail().withMessage('Valid email is required'),
@@ -261,7 +241,6 @@ router.post('/register', [
 
     const { name, email, password, businessType = 'msme' } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({
@@ -270,7 +249,6 @@ router.post('/register', [
       });
     }
 
-    // Create new user
     const user = new User({
       name,
       email,
@@ -281,7 +259,6 @@ router.post('/register', [
 
     await user.save();
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       JWT_SECRET,
@@ -312,7 +289,6 @@ router.post('/register', [
   }
 });
 
-// Login endpoint
 router.post('/login', [
   body('email').isEmail().withMessage('Valid email is required'),
   body('password').notEmpty().withMessage('Password is required')
@@ -329,7 +305,6 @@ router.post('/login', [
 
     const { email, password } = req.body;
 
-    // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -338,7 +313,6 @@ router.post('/login', [
       });
     }
 
-    // Check password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -347,7 +321,6 @@ router.post('/login', [
       });
     }
 
-    // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email },
       JWT_SECRET,
@@ -378,7 +351,6 @@ router.post('/login', [
   }
 });
 
-// Verify token endpoint
 router.get('/verify', async (req, res) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');

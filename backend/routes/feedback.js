@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
 
-// Configure nodemailer
 const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
@@ -15,7 +14,6 @@ router.post('/api/feedback', async (req, res) => {
   try {
     const { name, email, subject, message, type, language, timestamp } = req.body;
 
-    // Email content
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: 'support@smarttourist.com',

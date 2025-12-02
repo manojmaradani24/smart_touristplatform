@@ -6,21 +6,18 @@ dotenv.config();
 
 const router = express.Router();
 
-// Configure nodemailer
 const transporter = nodemailer.createTransporter({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, // Your email
-    pass: process.env.EMAIL_PASS  // Your app password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   }
 });
 
-// Send feedback email
 router.post('/feedback', async (req, res) => {
   try {
     const { name, email, subject, message, type, language } = req.body;
 
-    // Email to admin (manojmaradani24@gmail.com)
     const adminMailOptions = {
       from: process.env.EMAIL_USER,
       to: 'manojmaradani24@gmail.com',
@@ -88,7 +85,6 @@ router.post('/feedback', async (req, res) => {
       `
     };
 
-    // Send confirmation email to user
     const userMailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -142,7 +138,6 @@ router.post('/feedback', async (req, res) => {
       `
     };
 
-    // Send both emails
     await transporter.sendMail(adminMailOptions);
     await transporter.sendMail(userMailOptions);
 

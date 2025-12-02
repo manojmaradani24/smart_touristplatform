@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter
 const createTransporter = () => {
   return nodemailer.createTransporter({
     service: 'gmail',
@@ -11,7 +10,6 @@ const createTransporter = () => {
   });
 };
 
-// Send OTP email
 export const sendOTPEmail = async (email, otp, name) => {
   try {
     const transporter = createTransporter();
@@ -62,7 +60,6 @@ export const sendOTPEmail = async (email, otp, name) => {
   }
 };
 
-// Send password reset confirmation
 export const sendPasswordResetConfirmation = async (email, name) => {
   try {
     const transporter = createTransporter();
