@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: smartmerchant-backend
+    env: node
+    plan: free
+    region: oregon
+    repo: https://github.com/manojmaradani24/smart_touristplatform
+    branch: main
+    buildCommand: cd backend && npm ci
+    startCommand: cd backend && npm start
+    envVars:
+      - key: MONGODB_URI
+        fromDatabase: false
+      - key: JWT_SECRET
+        fromDatabase: false
+      - key: OPENAI_API_KEY
+        fromDatabase: false
+      - key: OPENROUTER_API_KEY
+        fromDatabase: false
+      - key: EMAIL_USER
+        fromDatabase: false
+      - key: EMAIL_PASS
+        fromDatabase: false
+    autoDeploy: true
+
+# NOTE: This file provides a manifest that Render will use when creating services from
+# the repository. If you prefer to create the service via the Render dashboard UI,
+# simply connect the GitHub repository and Render will detect this manifest.
